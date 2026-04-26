@@ -37,14 +37,35 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  min-height: 100vh;
+  min-height: 100svh;
   background: var(--bg);
   color: var(--fg);
   font-family: var(--body);
-  font-size: 16px;
+  font-size: clamp(14.5px, 0.85rem + 0.2vw, 17px);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+@media (max-width: 640px) {
+  body::before { background-size: 220px 220px; opacity: 0.08; }
+  body::after { opacity: 0.25; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Memphis tiled background — squiggles, dots, zigzags, plus-signs */

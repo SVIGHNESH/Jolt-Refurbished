@@ -418,7 +418,8 @@ function NoteModal({
 
 /* ─────────────────────────────────────────────────────────── */
 const styles = `
-.canvas { position: relative; z-index: 2; max-width: 1380px; margin: 0 auto; padding: 1.2rem clamp(1rem, 4vw, 3rem) 5rem; }
+.canvas { position: relative; z-index: 2; max-width: min(1380px, 100%); margin: 0 auto; padding: clamp(0.8rem, 2vw, 1.4rem) clamp(0.9rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem); }
+@media (min-width: 1600px) { .canvas { max-width: 1520px; } }
 
 /* ── Ticker tape ─────────────────────────── */
 .ticker {
@@ -454,9 +455,18 @@ const styles = `
   pointer-events: none;
   opacity: 0.55;
 }
+@media (max-width: 720px) { .decor { opacity: 0.25; } }
 
 /* ── Header ──────────────────────────────── */
-.head { text-align: center; padding: 1.5rem 0 2rem; position: relative; }
+.head { text-align: center; padding: clamp(1rem, 3vw, 1.6rem) 0 clamp(1.2rem, 3vw, 2rem); position: relative; }
+@media (max-width: 520px) {
+  .head-bar { flex-wrap: wrap; }
+  .head-tag { font-size: 0.65rem; padding: 0.3rem 0.7rem; }
+  .head-tag-txt { display: none; }
+  .head-sub { font-size: 0.95rem; }
+  .ticker { height: 30px; }
+  .ticker-track { font-size: 0.72rem; padding: 6px 0; }
+}
 .head-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
 .head-tag {
   display: inline-flex; align-items: center; gap: 0.5rem;
@@ -513,7 +523,11 @@ const styles = `
   align-items: center;
   margin-bottom: 2rem;
 }
-@media (max-width: 820px) { .bar { grid-template-columns: 1fr; } }
+@media (max-width: 820px) {
+  .bar { grid-template-columns: 1fr; gap: 0.7rem; margin-bottom: 1.4rem; }
+  .bar .big-btn { width: 100%; justify-content: center; }
+  .filters { justify-content: center; }
+}
 
 .search-pill {
   display: flex; align-items: center; gap: 0.7rem;
@@ -577,9 +591,12 @@ const styles = `
 /* ── Sticker board ───────────────────────── */
 .board {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1rem, 2.4vw, 1.6rem);
   position: relative;
+}
+@media (min-width: 1600px) {
+  .board { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 }
 
 .sticker {
@@ -757,7 +774,17 @@ const styles = `
     linear-gradient(to right, transparent 0, transparent 64px, rgba(255,61,127,0.4) 64px, rgba(255,61,127,0.4) 65px, transparent 66px),
     repeating-linear-gradient(transparent 0, transparent 31px, rgba(61,217,235,0.35) 31px, rgba(61,217,235,0.35) 32px);
 }
-@media (max-width: 600px) { .card-modal { padding: 1.6rem 1.2rem 1.2rem; } }
+@media (max-width: 600px) {
+  .card-modal { padding: 1.4rem 1rem 1rem; box-shadow: 8px 8px 0 var(--pink), 16px 16px 0 var(--ink); }
+  .card-holes { display: none; }
+  .modal-head, .modal-form { padding-left: 0; }
+  .modal-foot { justify-content: stretch; }
+  .actions { width: 100%; justify-content: flex-end; }
+  .actions .big-btn { flex: 1 1 auto; min-width: 0; }
+}
+@media (max-width: 380px) {
+  .actions .big-btn { font-size: 0.78rem; padding: 0 0.7rem; }
+}
 
 .card-tape {
   position: absolute; top: -16px; left: 50%;
