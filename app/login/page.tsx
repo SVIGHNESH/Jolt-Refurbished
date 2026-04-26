@@ -89,22 +89,7 @@ export default function LoginPage({
           </form>
         </div>
 
-        <div className="or"><span>or</span></div>
-
-        <form action={withEmail} className="email">
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder="you@somewhere.com"
-            autoComplete="email"
-          />
-          <button type="submit" className="big-btn pink">✉ send magic link</button>
-        </form>
-
-        <p className="legal">
-          we'll email you a link. no passwords, no nonsense.
-        </p>
+        <p className="legal">pick a provider above. you'll be back here in a blink.</p>
         <p className="credit">a thing by <em>Vighnesh Shukla</em></p>
       </div>
     </main>
