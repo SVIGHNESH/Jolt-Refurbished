@@ -1,161 +1,141 @@
-# JOLT — Editorial Notes Web App
+# JOLT // 88
 
-A minimal, offline-first notes application built with Next.js, featuring a distinctive editorial design aesthetic.
+A loud little notebook. Memphis-arcade aesthetic, Next.js 14 (App Router) on top of Postgres.
 
-## Design Philosophy
+## Stack
 
-**Brutally minimal, editorial-inspired interface:**
-- Typography: Crimson Text (serif display) + IBM Plex Mono (monospace body)
-- Color: Stark black/white with electric lime accent (#CCFF00)
-- Layout: Diagonal note cards that overlap like scattered papers
-- Motion: Staggered reveals, hover tilts, smooth transitions
+| Layer | What |
+|---|---|
+| Framework | Next.js 14 (App Router, TypeScript) |
+| DB | Postgres (Neon serverless driver) |
+| ORM | Drizzle ORM + drizzle-kit |
+| Auth | Auth.js v5 — Google + GitHub OAuth + magic-link via Resend, **DB sessions** |
+| Rate limit | Upstash Ratelimit (Redis) |
+| Hosting | Vercel (recommended) |
 
-## Features
+## Local development
 
-- ✅ Create, read, update, delete notes
-- ✅ Pin important notes to the top
-- ✅ Mark notes as favorites
-- ✅ Tag organization with comma-separated input
-- ✅ Real-time search across titles and content
-- ✅ In-memory storage (data persists during session)
-- ✅ Distinctive, memorable UI that avoids generic design patterns
-
-## Tech Stack
-
-- **Framework**: Next.js 14 with App Router
-- **Language**: TypeScript
-- **Database**: In-memory storage (for demo purposes)
-- **Animation**: Framer Motion
-- **Styling**: CSS-in-JSX with custom properties
-- **Date Formatting**: date-fns
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Install dependencies:
 ```bash
 npm install
+cp .env.example .env.local
+# fill in DATABASE_URL + AUTH_SECRET at minimum
+npm run db:push       # apply schema
+npm run dev           # http://localhost:3000
 ```
 
-2. Run the development server:
+If you don't fill in OAuth/Resend creds, the corresponding sign-in buttons just won't work; the rest of the app still runs. Upstash creds are optional in dev — the limiters no-op if absent.
 
-**Option A: Local access only**
-```bash
-npm run dev
-```
+### Required env vars
 
-**Option B: Network access (recommended for LAN access)**
-```bash
-./start.sh
-# or
-npm run dev:network
-```
+See `.env.example`. The bare minimum to boot:
 
-3. Access the application:
-   - **Local**: [http://localhost:3000](http://localhost:3000)
-   - **Network**: `http://YOUR_LOCAL_IP:3000` (displayed when using start.sh)
+- `DATABASE_URL` — Neon pooled Postgres URL
+- `AUTH_SECRET` — `openssl rand -base64 32`
 
+For real sign-in, add credentials for at least one provider (Google, GitHub, or Resend).
 
-### Build for Production
+## Scripts
 
 ```bash
-npm run build
-npm start
+npm run dev            # dev on 0.0.0.0:3000 (LAN-accessible)
+npm run dev:local      # dev on localhost only
+npm run build          # production build
+npm start              # production server
+npm run lint           # next lint
+npm run db:generate    # drizzle-kit generate (write a new migration)
+npm run db:migrate     # drizzle-kit migrate (apply pending)
+npm run db:push        # drizzle-kit push (sync schema directly — dev only)
+npm run db:studio      # drizzle-kit studio (DB inspector)
 ```
 
-## Project Structure
+## Architecture
 
 ```
-NOTES_APP/
-├── app/
-│   ├── api/
-│   │   ├── notes/
-│   │   │   ├── route.ts          # GET all notes, POST new note
-│   │   │   └── [id]/route.ts     # GET, PATCH, DELETE specific note
-│   │   ├── categories/route.ts   # Category management
-│   │   └── tags/route.ts         # Tag management
-│   ├── globals.css               # Global styles & design system
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Main notes interface
-├── lib/
-│   └── db.ts                     # SQLite database service
-├── types/
-│   └── index.ts                  # TypeScript interfaces
-├── package.json
-├── tsconfig.json
-└── next.config.js
+app/
+  page.tsx                    sticker-board UI (client)
+  layout.tsx                  root layout, fonts, metadata
+  globals.css                 design tokens + Memphis grain background
+  login/                      auth-gated entry; server actions hit signIn()
+  settings/                   profile, export, danger zone
+  _components/UserMenu.tsx    avatar dropdown
+  api/
+    auth/[...nextauth]/       Auth.js handlers
+    notes/, notes/[id]/       CRUD; per-user filtered
+    notes/[id]/export/        single-note .md download
+    categories/, tags/        lookup endpoints
+    export/                   GET /api/export → notes zip
+    account/                  DELETE /api/account → cascade-delete user
+
+lib/
+  auth/current-user.ts        getCurrentUserId() from session
+  api-helpers.ts              resolveUser() → 401 if anon
+  ratelimit.ts                Upstash limiters (no-op if creds absent)
+  export.ts                   markdown frontmatter + zip builder
+  db/
+    client.ts                 Neon driver + Drizzle client
+    schema.ts                 all tables + relations
+    repos/                    notesRepo / categoriesRepo / tagsRepo
+                              (every method takes userId first)
+
+middleware.ts                 redirects anon → /login
+auth.ts                       Auth.js v5 config
+drizzle.config.ts             drizzle-kit config
+drizzle/migrations/           generated SQL
 ```
 
-## Core Features Implementation
+### Per-user isolation
 
-### Notes Management
-- **Create**: Click "+ New Note" to open modal
-- **Edit**: Click any note card to edit
-- **Delete**: Open note and click "Delete" button
-- **Pin**: Click pin icon (📌) to pin/unpin notes
-- **Favorite**: Toggle favorite checkbox in edit modal
+Every repo method takes `userId` as its first argument and every query has
+`WHERE user_id = $userId`. There is no row-level security policy in Postgres
+— isolation is enforced at the application layer only. The audit surface is
+the three files in `lib/db/repos/`.
 
-### Search
-- Type in search bar to filter notes by title or content
-- Results update in real-time with debouncing
+### Sessions
+
+Auth.js is configured with `session.strategy: 'database'`. Session rows live
+in the `sessions` table; deleting a user cascades the session, so account
+deletion is instant revocation. There is no JWT.
 
 ### Tags
-- Add tags as comma-separated values (e.g., "work, urgent, ideas")
-- Tags are automatically created and associated with notes
-- Displayed as black chips on note cards
 
-### Database Schema
+Tags are per-user (`UNIQUE(user_id, name)`) and auto-created when a note is
+saved with new tag names. Clients pass `tags: string[]` on note create/update;
+the repo upserts and writes the `note_tags` junction.
 
-**Notes Table:**
-- id, title, content, createdAt, updatedAt, isPinned, isFavorite, categoryId
+## Export
 
-**Categories Table:**
-- id, name, color, createdAt
+- `GET /api/export` — zip with `notes.json` (full backup, schemaVersion 1) +
+  `notes/<slug>-<id>.md` files (YAML frontmatter + body) + `README.txt`.
+- `GET /api/notes/:id/export` — single `.md` for one note.
 
-**Tags Table:**
-- id, name, createdAt
+Import is not implemented in v1; the `notes.json` format is stable for a
+future round-trip.
 
-**NoteTags Junction Table:**
-- noteId, tagId
+## Account deletion
 
-## Design Principles Applied
+`/settings → Danger Zone`. Forced two-step flow:
 
-Following the frontend-design skill guidelines:
+1. Click "export now" (download your data).
+2. Type `DELETE my account` to enable the final button.
 
-1. **Typography**: Distinctive font pairing (Crimson Text + IBM Plex Mono)
-2. **Color**: High-contrast scheme with singular accent color
-3. **Motion**: CSS animations with staggered delays, hover transforms
-4. **Spatial Composition**: Diagonal card rotations, asymmetric hover states
-5. **Visual Details**: Custom scrollbar, dramatic shadows on hover, accent underlines
+`DELETE /api/account` requires the matching confirm phrase, then runs
+`db.delete(users).where(...)`. Foreign keys cascade to wipe notes, tags,
+categories, note_tags, accounts, and sessions in one transaction.
 
-## API Endpoints
+## Rate limits
 
-- `GET /api/notes` - Fetch all notes
-- `GET /api/notes?q={query}` - Search notes
-- `POST /api/notes` - Create new note
-- `GET /api/notes/[id]` - Get specific note
-- `PATCH /api/notes/[id]` - Update note
-- `DELETE /api/notes/[id]` - Delete note
-- `GET /api/categories` - Fetch all categories
-- `POST /api/categories` - Create category
-- `GET /api/tags` - Fetch all tags
+Configured in `lib/ratelimit.ts`. All gracefully no-op without Upstash creds.
 
-## Future Enhancements
+| Surface | Limit |
+|---|---|
+| Magic-link send (per email) | 5 / hour |
+| Magic-link send (per IP) | 20 / hour |
+| Note / category / tag writes | 60 / minute / user |
+| `/api/export` | 5 / hour / user |
 
-From the original PRD, these features can be added:
-- Category color coding and filtering
-- Export/import notes functionality
-- Light/dark theme toggle
-- Advanced filtering by category and tags
-- Backup and restore
-- Font size preferences
+## Design
 
-## License
-
-MIT
+See `DESIGN_GUIDE.md` (preserve the JOLT // 88 Memphis aesthetic when editing
+UI). The visual language is intentionally loud: chunky Bungee display, hard
+ink-black borders, hard offset block shadows, candy palette (pink, cyan,
+yellow, mint, lavender, tangerine), animated SVG Memphis pattern background.

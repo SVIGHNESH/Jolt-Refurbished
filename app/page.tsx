@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Note } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import UserMenu from './_components/UserMenu';
 
 const PALETTE = ['pink', 'cyan', 'yellow', 'mint', 'lavender', 'tangerine'] as const;
 type Hue = (typeof PALETTE)[number];
@@ -120,9 +121,12 @@ export default function Home() {
 
       {/* ── Wordmark ──────────────────── */}
       <header className="head">
-        <div className="head-tag">
-          <span className="dot pink" /> <span className="dot cyan" /> <span className="dot yellow" />
-          <span className="head-tag-txt">notebook · vol.88</span>
+        <div className="head-bar">
+          <div className="head-tag">
+            <span className="dot pink" /> <span className="dot cyan" /> <span className="dot yellow" />
+            <span className="head-tag-txt">notebook · vol.88</span>
+          </div>
+          <UserMenu />
         </div>
         <h1 className="wordmark">
           <span className="w-shade">JOLT</span>
@@ -386,6 +390,16 @@ function NoteModal({
           <footer className="modal-foot">
             <span className="wc-pill">{wc} words</span>
             <div className="actions">
+              {note && (
+                <a
+                  className="big-btn ghost"
+                  href={`/api/notes/${note.id}/export`}
+                  onClick={(e) => e.stopPropagation()}
+                  download
+                >
+                  ⤓ export
+                </a>
+              )}
               {onDelete && note && (
                 <button type="button" className="big-btn ghost danger" onClick={() => onDelete(note.id)}>
                   ✕ delete
@@ -442,6 +456,7 @@ const styles = `
 
 /* ── Header ──────────────────────────────── */
 .head { text-align: center; padding: 1.5rem 0 2rem; position: relative; }
+.head-bar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.6rem; }
 .head-tag {
   display: inline-flex; align-items: center; gap: 0.5rem;
   padding: 0.4rem 0.9rem;

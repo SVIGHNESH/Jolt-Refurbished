@@ -1,0 +1,210 @@
+import { signIn } from '@/auth';
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { limiters } from '@/lib/ratelimit';
+
+export const metadata = { title: 'JOLT // 88 — Sign in' };
+
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams?: { next?: string; error?: string };
+}) {
+  const next = searchParams?.next || '/';
+  const err = searchParams?.error;
+
+  async function withGoogle()  { 'use server'; await signIn('google', { redirectTo: next }); }
+  async function withGitHub()  { 'use server'; await signIn('github', { redirectTo: next }); }
+  async function withEmail(form: FormData) {
+    'use server';
+    const email = String(form.get('email') || '').trim().toLowerCase();
+    if (!email) redirect(`/login?error=missing-email&next=${encodeURIComponent(next)}`);
+
+    const h = headers();
+    const ip =
+      h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      h.get('x-real-ip') ||
+      'unknown';
+
+    if (limiters.magicMail) {
+      const r = await limiters.magicMail.limit(email);
+      if (!r.success) redirect(`/login?error=rate-limited&next=${encodeURIComponent(next)}`);
+    }
+    if (limiters.magicIp) {
+      const r = await limiters.magicIp.limit(ip);
+      if (!r.success) redirect(`/login?error=rate-limited&next=${encodeURIComponent(next)}`);
+    }
+
+    await signIn('resend', { email, redirectTo: next });
+  }
+
+  return (
+    <main className="login">
+      <style>{styles}</style>
+      <div className="card">
+        <div className="card-tape" />
+        <header className="hd">
+          <span className="eyebrow">★ welcome ★</span>
+          <h1 className="mark">
+            <span className="shade">JOLT</span>
+            <span className="front">JOLT</span>
+          </h1>
+          <p className="sub">sign in to slap notes on the board</p>
+        </header>
+
+        {err === 'rate-limited' && <div className="err">⚠ too many tries — wait an hour and try again</div>}
+        {err === 'missing-email' && <div className="err">⚠ enter an email to continue</div>}
+        {err && err !== 'rate-limited' && err !== 'missing-email' && (
+          <div className="err">⚠ couldn't sign you in — try again</div>
+        )}
+
+        <div className="oauth">
+          <form action={withGoogle}>
+            <button type="submit" className="big-btn google">
+              <span className="g">G</span> continue with google
+            </button>
+          </form>
+          <form action={withGitHub}>
+            <button type="submit" className="big-btn github">
+              <span className="g">▲</span> continue with github
+            </button>
+          </form>
+        </div>
+
+        <div className="or"><span>or</span></div>
+
+        <form action={withEmail} className="email">
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="you@somewhere.com"
+            autoComplete="email"
+          />
+          <button type="submit" className="big-btn pink">✉ send magic link</button>
+        </form>
+
+        <p className="legal">
+          we'll email you a link. no passwords, no nonsense.
+        </p>
+      </div>
+    </main>
+  );
+}
+
+const styles = `
+.login {
+  position: relative; z-index: 2;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2rem 1rem;
+}
+.card {
+  position: relative;
+  width: 100%; max-width: 460px;
+  background: var(--bone); color: var(--ink);
+  border: 4px solid var(--ink);
+  padding: 2.4rem 2rem 1.6rem;
+  box-shadow: 14px 14px 0 var(--cyan), 28px 28px 0 var(--ink);
+  background-image: repeating-linear-gradient(transparent 0, transparent 31px, rgba(184,164,255,0.35) 31px, rgba(184,164,255,0.35) 32px);
+}
+.card-tape {
+  position: absolute; top: -16px; left: 50%;
+  width: 110px; height: 26px;
+  background: rgba(255,210,63,0.85);
+  border: 2px solid var(--ink);
+  transform: translateX(-50%) rotate(-2deg);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.hd { text-align: center; margin-bottom: 1.4rem; }
+.eyebrow {
+  display: inline-block;
+  background: var(--ink); color: var(--yellow);
+  padding: 0.3rem 0.8rem;
+  font: 700 0.7rem var(--mono);
+  letter-spacing: 0.18em;
+}
+.mark { position: relative; font-family: var(--display); font-size: clamp(3rem, 12vw, 5rem); line-height: 0.9; margin: 0.6rem 0 0.3rem; display: inline-block; }
+.mark .shade { position: absolute; inset: 0; font-family: var(--shade); color: var(--pink); transform: translate(6px, 5px); z-index: -1; }
+.mark .front {
+  background: linear-gradient(180deg, var(--ink) 0%, var(--ink) 50%, var(--cyan) 50%, var(--tangerine) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 2.5px var(--ink);
+}
+.sub { font: 500 0.95rem var(--body); color: rgba(10,10,10,0.7); }
+
+.err {
+  background: var(--pink); color: var(--bone);
+  padding: 0.5rem 0.8rem; border: 2.5px solid var(--ink);
+  font: 600 0.78rem var(--mono); letter-spacing: 0.06em;
+  margin-bottom: 1rem; box-shadow: 3px 3px 0 var(--ink);
+}
+
+.oauth { display: flex; flex-direction: column; gap: 0.6rem; }
+.oauth form { display: contents; }
+.big-btn {
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.7rem;
+  height: 52px; padding: 0 1rem;
+  background: var(--bone); color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  font: 700 0.9rem var(--display);
+  letter-spacing: 0.02em; text-transform: lowercase;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 160ms, box-shadow 160ms, background 160ms;
+}
+.big-btn:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.big-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.big-btn.google:hover { background: var(--mint); }
+.big-btn.github:hover { background: var(--lavender); }
+.big-btn.pink { background: var(--pink); }
+.big-btn.pink:hover { background: var(--yellow); }
+.big-btn .g {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid var(--ink); border-radius: 999px;
+  font-family: var(--display); font-size: 0.9rem;
+  background: var(--yellow);
+}
+.big-btn.github .g { background: var(--cyan); }
+.big-btn.pink .g { background: var(--bone); }
+
+.or {
+  position: relative;
+  text-align: center;
+  margin: 1.2rem 0;
+  font: 700 0.7rem var(--mono);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(10,10,10,0.5);
+}
+.or::before, .or::after {
+  content: ''; position: absolute; top: 50%;
+  width: 38%; height: 2px; background: var(--ink); opacity: 0.5;
+}
+.or::before { left: 0; }
+.or::after { right: 0; }
+.or span { background: var(--bone); padding: 0 0.6rem; position: relative; }
+
+.email { display: flex; flex-direction: column; gap: 0.5rem; }
+.email input {
+  height: 48px; padding: 0 1rem;
+  background: rgba(255,255,255,0.7);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  font: 500 0.95rem var(--body);
+  color: var(--ink);
+  outline: 0;
+  box-shadow: 4px 4px 0 var(--pink);
+}
+.email input:focus { background: var(--yellow); box-shadow: 4px 4px 0 var(--ink); }
+.email input::placeholder { color: rgba(10,10,10,0.4); }
+
+.legal {
+  margin-top: 1.1rem; text-align: center;
+  font: 500 0.72rem var(--mono); letter-spacing: 0.08em;
+  color: rgba(10,10,10,0.55);
+}
+`;

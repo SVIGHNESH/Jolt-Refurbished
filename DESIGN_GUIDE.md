@@ -1,351 +1,115 @@
-# JOLT — Visual Design Guide
+# JOLT // 88 — Visual Design Guide
 
-## Design Philosophy
+## Philosophy
 
-**Editorial Minimalism**: A brutally minimal, magazine-inspired aesthetic that prioritizes typography, whitespace, and intentional motion over decoration.
+**Memphis arcade · Sticker sheet · Y2K-adjacent.** Loud, chunky, intentional.
+Primary candy colors on deep purple-black, hard ink-black borders, hard
+offset block shadows, slight rotations, animated SVG patterns. Not minimalism
+— maximalism with discipline.
 
----
-
-## Typography System
-
-### Font Families
-
-**Display (Headings):**
-```
-font-family: 'Crimson Text', serif;
-```
-- Used for: Page title, note titles, modal headers
-- Weights: 400 (regular), 600 (semibold), 700 (bold)
-- Character: Classic, literary, authoritative
-
-**Body (UI & Content):**
-```
-font-family: 'IBM Plex Mono', monospace;
-```
-- Used for: All UI text, note content, buttons, inputs
-- Weights: 300 (light), 400 (regular), 500 (medium)
-- Character: Technical, precise, editorial
-
-### Type Scale
-
-```
-Page Title:    clamp(3rem, 8vw, 5.5rem)  — 88px max
-Note Title:    1.5rem (24px)
-Modal Title:   2rem (32px)
-Body:          0.875rem (14px)
-Labels:        0.75rem (12px)
-Tags:          0.7rem (11px)
-```
-
-### Typography Rules
-
-1. **Tight Leading on Display:** line-height: 0.95 for dramatic impact
-2. **Loose Leading on Body:** line-height: 1.7 for readability
-3. **Uppercase Labels:** All metadata in uppercase with letter-spacing: 0.1em
-4. **Negative Letter-spacing:** Display titles use letter-spacing: -0.02em
+The one rule: **commit to the loudness**. Half-measures (one accent color, a
+single rotated element) read as accidents. Every component leans in.
 
 ---
 
-## Color System
+## Typography
 
-### Palette
+| Role | Family | Notes |
+|---|---|---|
+| Display | `Bungee` | Chunky 80s-arcade. Wordmarks, big titles, button labels. |
+| Display (shaded) | `Bungee Shade` | Layered behind `Bungee` for the JOLT drop-shadow effect. |
+| Body | `Familjen Grotesk` | Italic-capable workhorse for paragraphs, descriptions. |
+| Mono | `DM Mono` | Eyebrows, badges, kbd hints, metadata. Always uppercase + tracked. |
 
-```css
---color-bg:      #FAFAFA  /* Off-white background */
---color-text:    #0A0A0A  /* Near-black text */
---color-accent:  #CCFF00  /* Electric lime */
---color-muted:   #666666  /* Mid-gray for metadata */
---color-border:  #E0E0E0  /* Light gray borders */
---color-card:    #FFFFFF  /* Pure white cards */
---color-shadow:  rgba(0, 0, 0, 0.08)  /* Subtle shadows */
-```
-
-### Color Usage Rules
-
-1. **High Contrast:** Always maintain WCAG AA contrast ratios
-2. **Single Accent:** Electric lime used sparingly for:
-   - Primary action buttons
-   - Hover underlines
-   - Pinned note highlights
-   - Focus states
-3. **No Gradients:** Solid colors only (except subtle pinned note gradient)
-4. **Black & White Dominance:** 90% of the interface is achromatic
-
-### Accent Application
-
-```
-✓ Primary buttons
-✓ Active states
-✓ Hover indicators
-✓ Pinned note accents
-✗ Text color
-✗ Large background areas
-✗ Decorative elements
-```
+Weights, sizes, and tracking are set in `app/globals.css` and per-component
+in `app/page.tsx` / `app/settings/page.tsx`. Avoid introducing other families.
 
 ---
 
-## Spacing System
+## Color tokens
 
-### Scale
+Defined in `app/globals.css`:
 
-```css
---space-xs: 0.5rem   (8px)
---space-sm: 1rem     (16px)
---space-md: 1.5rem   (24px)
---space-lg: 2.5rem   (40px)
---space-xl: 4rem     (64px)
+```
+--void        #110A2E   page background
+--void-deep   #0A0620   panels under the page
+--bone        #FCF4E4   cream paper / on-color text
+--ink         #0A0A0A   borders, body text on candy
+
+--pink        #FF3D7F   primary accent + default sticker hue
+--cyan        #3DD9EB   secondary accent
+--yellow      #FFD23F   highlight + selection
+--mint        #7CE3A1   success states
+--lavender   #B8A4FF   tertiary
+--tangerine  #FF8A3D   tertiary
 ```
 
-### Application
-
-- **Container Padding:** var(--space-xl) desktop, var(--space-lg) mobile
-- **Card Padding:** var(--space-lg)
-- **Form Groups:** var(--space-lg) margin-bottom
-- **Grid Gap:** var(--space-lg)
-- **Button Padding:** var(--space-sm) var(--space-md)
+A note's sticker color and rotation are deterministically hashed from its
+`id` (see `stable()` in `app/page.tsx`) so the layout is chaotic-looking but
+stable across renders.
 
 ---
 
-## Component Patterns
+## Surfaces
 
-### Note Cards
-
-```
-Dimensions:  min-width: 320px (in grid)
-Borders:     2px solid var(--color-border)
-Background:  var(--color-card)
-Padding:     var(--space-lg)
-
-Hover State:
-  - transform: rotate(-1deg) translateY(-8px)
-  - box-shadow: 12px 12px 0 var(--color-shadow)
-  - border-color: var(--color-text)
-  - Top border: 4px accent line scales in
-
-Pinned State:
-  - border-color: var(--color-accent)
-  - Subtle lime gradient background
-```
-
-### Buttons
-
-```
-Default:
-  - Background: var(--color-text)
-  - Color: var(--color-bg)
-  - Border: 2px solid var(--color-text)
-  - Text: uppercase, 0.875rem, letter-spacing: 0.05em
-
-Hover:
-  - Background: transparent
-  - Color: var(--color-text)
-  - transform: translateY(-2px)
-
-Accent:
-  - Background: var(--color-accent)
-  - Color: var(--color-text)
-  - Border: 2px solid var(--color-accent)
-```
-
-### Inputs
-
-```
-Base:
-  - Border: 2px solid var(--color-border)
-  - Background: var(--color-bg) (for inputs in white modal)
-  - Padding: var(--space-sm) var(--space-md)
-  - Font: var(--font-mono), 0.875rem
-
-Focus:
-  - Border: var(--color-accent)
-  - Box-shadow: 0 0 0 3px rgba(204, 255, 0, 0.1)
-```
-
-### Modal
-
-```
-Overlay:
-  - Background: rgba(0, 0, 0, 0.7)
-  - Backdrop-filter: blur(8px)
-
-Content:
-  - Border: 3px solid var(--color-text) (thicker than cards)
-  - Box-shadow: 20px 20px 0 rgba(0, 0, 0, 0.1) (geometric offset)
-  - Max-width: 700px
-  - Padding: var(--space-xl)
-```
+- **Borders**: 3–4px solid `--ink`. Never use a thinner border — it reads as
+  generic shadcn slop.
+- **Shadows**: hard offset block shadows, no blur. Tokens:
+  `--hard-shadow` (`6px 6px 0 var(--ink)`),
+  `--hard-shadow-sm` (`3px 3px 0`),
+  `--hard-shadow-lg` (`10px 10px 0`).
+  On hover, translate `(-2px, -2px)` and bump shadow up.
+- **Tape strips**: cream rectangles with a faint border, rotated `-2deg`,
+  half-transparent. Used on stickers and modals.
+- **Scanlines + Memphis grain**: applied globally via `body::before` /
+  `body::after`. Don't disable.
 
 ---
 
-## Motion & Animation
+## Motion
 
-### Timing Functions
+- Page-load: spring-physics pop on each sticker (Framer Motion `spring`,
+  stiffness ~220, damping ~18, staggered by 0.05s × index).
+- Hover on stickers: rotate to 0deg, scale 1.04, lift -6px.
+- Ticker tape: 40s linear scroll, never pauses.
+- Memphis bg pattern: 60s linear drift.
+- Buttons: `translate(-2px, -2px)` on hover with shadow growth, snap back on
+  active.
 
-Primary: `cubic-bezier(0.16, 1, 0.3, 1)` — Smooth, elastic easing
-
-### Animations
-
-**Page Load:**
-```css
-@keyframes fadeIn {
-  from: opacity 0, translateY(20px)
-  to: opacity 1, translateY(0)
-}
-Duration: 0.6s
-Stagger: 0.1s per element
-```
-
-**Card Hover:**
-```
-Duration: 0.3s
-Effects: rotate, translateY, box-shadow, border-color
-```
-
-**Modal:**
-```
-Overlay: fade (0.2s)
-Content: scale + fade (0.3s)
-```
-
-**Accent Line:**
-```
-Transform: scaleX(0) → scaleX(1)
-Origin: left
-Duration: 0.3s
-```
-
-### Animation Principles
-
-1. **Staggered Reveals:** Elements appear sequentially (0.05-0.1s delay)
-2. **Exaggerated Transforms:** Large movements (8px translateY, 12px shadows)
-3. **Geometric Motions:** Rotations, scales, directional slides
-4. **Purposeful Easing:** Elastic curves, not linear
-5. **High-Impact Moments:** Page load, hover states, modal open/close
+Don't add micro-interactions for their own sake. The aesthetic is loud
+enough already.
 
 ---
 
-## Layout Principles
+## Components
 
-### Grid System
-
-```
-Desktop:
-  - repeat(auto-fill, minmax(320px, 1fr))
-  - gap: var(--space-lg)
-
-Mobile:
-  - Single column
-  - Full-width cards
-```
-
-### Composition Rules
-
-1. **Generous Top Spacing:** Large title with breathing room
-2. **Asymmetric Hover:** Cards rotate diagonally, not straight up
-3. **Diagonal Flow:** Visual movement from top-left to bottom-right
-4. **Controlled Density:** Cards dense with content but separated by whitespace
-5. **Breaking the Grid:** Hover states pop out of alignment
+- **Sticker card** (`app/page.tsx`) — colored block, ink border, tape strip
+  top-center, folio number badge, dog-ear corner (on pinned), hashtag bubble
+  pills, dashed-rule footer with relative-time + word-count badge.
+- **Pinned banner** — diagonal black-on-yellow ribbon across the top-right
+  corner of pinned stickers.
+- **Big button** (`big-btn`) — pill-shaped, candy fill, ink border, hard
+  shadow, optional `kbd` chip on the right.
+- **Search pill** — rounded input with a yellow `/` chip prefix.
+- **Filter chip** — pill that fills with its data-hue when active.
+- **Modal** — index-card style with three-hole punch on the left, vermillion
+  + cyan ruled-paper background, tape strip top-center, double offset shadow
+  (one in pink, one in ink).
+- **Avatar pill** (`UserMenu`) — 44px circle, ink border, cyan default,
+  initials or photo, hard shadow.
+- **Stat block** (settings) — bone block with ink border, big Bungee
+  numeral, mono uppercase label.
 
 ---
 
-## Responsive Breakpoints
+## Don't
 
-```
-Mobile:   < 768px
-  - Single column grid
-  - Stack header vertically
-  - Full-width search bar
-  - Reduced title size (3rem)
-  - Reduced padding (var(--space-lg) var(--space-md))
-
-Desktop:  ≥ 768px
-  - Multi-column grid
-  - Horizontal header layout
-  - Max-width search bar (400px)
-  - Full title size (5.5rem)
-  - Full padding (var(--space-xl) var(--space-lg))
-```
-
----
-
-## Accessibility
-
-### Color Contrast
-
-All text meets WCAG AA standards:
-- Body text (#0A0A0A on #FAFAFA): 17.8:1
-- Muted text (#666666 on #FAFAFA): 5.1:1
-- Accent (#CCFF00 with #0A0A0A text): 15.2:1
-
-### Interactive States
-
-- All buttons have visible focus rings
-- Hover states distinct from default
-- Active states provide feedback
-- Custom checkbox styled but accessible
-
-### Motion
-
-- Animations are decorative, not functional
-- No parallax or vestibular triggers
-- Respects prefers-reduced-motion (can be added)
-
----
-
-## What Makes This Design Unique
-
-### Avoids Generic AI Aesthetics:
-
-❌ No Inter/Roboto/system fonts
-❌ No purple gradients
-❌ No soft, rounded corners everywhere
-❌ No predictable card grids
-❌ No subtle, timid shadows
-❌ No evenly-distributed color palettes
-
-### Embraces Distinctive Choices:
-
-✓ Bold serif + mono pairing
-✓ Stark monochrome + single electric accent
-✓ Sharp edges and geometric forms
-✓ Dramatic, offset shadows
-✓ Exaggerated diagonal hover states
-✓ Editorial typography hierarchy
-
----
-
-## Implementation Notes
-
-### Google Fonts Import
-
-```css
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
-```
-
-### CSS Variables Organization
-
-Define once in `:root`, use throughout:
-```css
-:root {
-  /* Colors */
-  --color-bg: #FAFAFA;
-  /* ... */
-  
-  /* Typography */
-  --font-display: 'Crimson Text', serif;
-  /* ... */
-  
-  /* Spacing */
-  --space-xs: 0.5rem;
-  /* ... */
-}
-```
-
-### Component Scoping
-
-Use CSS-in-JSX with Next.js `<style jsx>` for component-scoped styles while maintaining access to global variables.
-
----
-
-**Result:** A cohesive, memorable design system that feels intentionally crafted, not algorithmically generated.
+- No Tailwind classes. Styles are CSS-in-JSX strings adjacent to each
+  component, plus the global tokens in `globals.css`.
+- No emoji-as-icon when an actual glyph (◆ ★ ✦ ✺) reads better.
+- No soft drop-shadows (`box-shadow: 0 4px 12px rgba(...)`). Always sharp
+  offset blocks.
+- No purple gradients on white. Backgrounds are deep ink with candy on top —
+  reverse it (light bg, candy text) and the whole thing collapses.
+- No sans-serif for display ("Inter for the title") — display is always
+  `Bungee`.
