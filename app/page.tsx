@@ -197,6 +197,7 @@ export default function Home() {
       <footer className="foot">
         <div className="foot-stripes" />
         <p>made with ♥ + ♦ + ▲ — set in <em>Bungee &amp; Familjen Grotesk</em></p>
+        <p className="credit">a thing by <em>Vighnesh Shukla</em></p>
       </footer>
 
       <AnimatePresence mode="wait">
@@ -733,6 +734,8 @@ const styles = `
 }
 .foot p { font: 500 0.85rem var(--mono); color: var(--fg-dim); letter-spacing: 0.05em; }
 .foot em { font-family: var(--display); color: var(--bone); font-style: normal; }
+.foot .credit { margin-top: 0.4rem; font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink); }
+.foot .credit em { color: var(--yellow); padding: 0 0.2em; }
 
 /* ── Modal: index card ──────────────────── */
 .overlay {

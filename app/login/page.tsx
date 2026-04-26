@@ -87,6 +87,7 @@ export default function LoginPage({
         <p className="legal">
           we'll email you a link. no passwords, no nonsense.
         </p>
+        <p className="credit">a thing by <em>Vighnesh Shukla</em></p>
       </div>
     </main>
   );
@@ -206,5 +207,26 @@ const styles = `
   margin-top: 1.1rem; text-align: center;
   font: 500 0.72rem var(--mono); letter-spacing: 0.08em;
   color: rgba(10,10,10,0.55);
+}
+.credit {
+  margin-top: 1.2rem; text-align: center;
+  padding-top: 0.9rem;
+  border-top: 2px dashed rgba(10,10,10,0.2);
+  font: 700 0.7rem var(--mono);
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--pink);
+}
+.credit em {
+  font-family: var(--display);
+  font-style: normal;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--yellow);
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.3em;
+  border: 2px solid var(--ink);
+  display: inline-block;
+  transform: rotate(-1deg);
 }
 `;
