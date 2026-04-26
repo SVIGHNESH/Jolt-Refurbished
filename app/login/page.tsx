@@ -5,13 +5,32 @@ import { limiters } from '@/lib/ratelimit';
 
 export const metadata = { title: 'JOLT // 88 — Sign in' };
 
+const ERROR_MESSAGES: Record<string, string> = {
+  'rate-limited':         '⚠ too many tries — wait an hour and try again',
+  'missing-email':        '⚠ enter an email to continue',
+  Configuration:          '⚠ sign-in is mis-configured on the server. try again in a minute.',
+  AccessDenied:           '⚠ access denied — your account isn’t allowed to sign in',
+  Verification:           '⚠ that magic link expired or was already used. send a new one below.',
+  OAuthAccountNotLinked:  '⚠ this email is already in use with a different sign-in method. use the original one (the same email but a different provider) and you’ll be linked automatically.',
+  OAuthSignin:            '⚠ couldn’t start the sign-in flow with that provider. try again.',
+  OAuthCallback:          '⚠ the provider rejected the sign-in mid-flow. try again.',
+  OAuthCreateAccount:     '⚠ couldn’t create your account from that provider. try a different sign-in method.',
+  EmailCreateAccount:     '⚠ couldn’t create your account from that email. try a different sign-in method.',
+  EmailSignin:            '⚠ couldn’t send the magic link. check the address and try again.',
+  Callback:               '⚠ the sign-in handshake failed. try again.',
+  SessionRequired:        '⚠ please sign in to continue',
+  Default:                '⚠ couldn’t sign you in — try again',
+};
+
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams?: { next?: string; error?: string };
+  searchParams?: { next?: string; error?: string; deleted?: string };
 }) {
   const next = searchParams?.next || '/';
   const err = searchParams?.error;
+  const deleted = searchParams?.deleted === '1';
+  const errMsg = err ? (ERROR_MESSAGES[err] ?? ERROR_MESSAGES.Default) : null;
 
   async function withGoogle()  { 'use server'; await signIn('google', { redirectTo: next }); }
   async function withGitHub()  { 'use server'; await signIn('github', { redirectTo: next }); }
@@ -52,11 +71,10 @@ export default function LoginPage({
           <p className="sub">sign in to slap notes on the board</p>
         </header>
 
-        {err === 'rate-limited' && <div className="err">⚠ too many tries — wait an hour and try again</div>}
-        {err === 'missing-email' && <div className="err">⚠ enter an email to continue</div>}
-        {err && err !== 'rate-limited' && err !== 'missing-email' && (
-          <div className="err">⚠ couldn't sign you in — try again</div>
+        {deleted && (
+          <div className="info">✓ your account was deleted. you can sign back up below.</div>
         )}
+        {errMsg && <div className="err">{errMsg}</div>}
 
         <div className="oauth">
           <form action={withGoogle}>
@@ -137,8 +155,14 @@ const styles = `
 
 .err {
   background: var(--pink); color: var(--bone);
-  padding: 0.5rem 0.8rem; border: 2.5px solid var(--ink);
-  font: 600 0.78rem var(--mono); letter-spacing: 0.06em;
+  padding: 0.6rem 0.8rem; border: 2.5px solid var(--ink);
+  font: 600 0.8rem/1.45 var(--body); letter-spacing: 0.01em;
+  margin-bottom: 1rem; box-shadow: 3px 3px 0 var(--ink);
+}
+.info {
+  background: var(--mint); color: var(--ink);
+  padding: 0.6rem 0.8rem; border: 2.5px solid var(--ink);
+  font: 600 0.82rem/1.45 var(--body);
   margin-bottom: 1rem; box-shadow: 3px 3px 0 var(--ink);
 }
 
