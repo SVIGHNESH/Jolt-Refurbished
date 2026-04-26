@@ -1,134 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&family=DM+Mono:wght@400;500&display=swap');
+
+/* ─────────────────────────────────────────────────────────────
+   JOLT // 88 — Memphis arcade notebook
+   Loud · Chunky · Sticker-sheet · Y2K-adjacent
+   ───────────────────────────────────────────────────────────── */
+
 :root {
-  /* Editorial Color System - Light Theme */
-  --color-bg: #FAFAFA;
-  --color-text: #0A0A0A;
-  --color-accent: #B8E600;
-  --color-muted: #666666;
-  --color-border: #E0E0E0;
-  --color-card: #FFFFFF;
-  --color-shadow: rgba(0, 0, 0, 0.08);
-  
-  /* Typography Scale */
-  --font-display: 'Crimson Text', serif;
-  --font-mono: 'IBM Plex Mono', monospace;
-  
-  /* Spacing */
-  --space-xs: 0.5rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2.5rem;
-  --space-xl: 4rem;
+  --void:        #110A2E;
+  --void-deep:   #0A0620;
+  --bone:        #FCF4E4;
+  --ink:         #0A0A0A;
+
+  --pink:        #FF3D7F;
+  --cyan:        #3DD9EB;
+  --yellow:      #FFD23F;
+  --mint:        #7CE3A1;
+  --lavender:    #B8A4FF;
+  --tangerine:   #FF8A3D;
+
+  --bg:     var(--void);
+  --bg-2:   var(--void-deep);
+  --fg:     var(--bone);
+  --fg-dim: #C9C0DA;
+  --accent: var(--pink);
+
+  --display: 'Bungee', 'Arial Black', sans-serif;
+  --shade:   'Bungee Shade', 'Bungee', sans-serif;
+  --body:    'Familjen Grotesk', system-ui, sans-serif;
+  --mono:    'DM Mono', ui-monospace, monospace;
+
+  --hard-shadow: 6px 6px 0 var(--ink);
+  --hard-shadow-sm: 3px 3px 0 var(--ink);
+  --hard-shadow-lg: 10px 10px 0 var(--ink);
 }
 
-/* Dark Theme - Editorial Minimalism at Night */
-[data-theme="dark"] {
-  /* Inverted Editorial Color System */
-  --color-bg: #0F0F0F;
-  --color-text: #FFFFFF;
-  --color-accent: #B8E600;
-  --color-muted: #B8B8B8;
-  --color-border: #333333;
-  --color-card: #1A1A1A;
-  --color-shadow: rgba(184, 230, 0, 0.15);
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   min-height: 100vh;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 15px;
-  line-height: 1.6;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  line-height: 1.2;
+/* Memphis tiled background — squiggles, dots, zigzags, plus-signs */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320' viewBox='0 0 320 320'>\
+<g fill='none' stroke='%23FF3D7F' stroke-width='2.2' stroke-linecap='round'>\
+<path d='M20 50 q15 -20 30 0 t30 0 t30 0'/>\
+<path d='M210 260 q15 -20 30 0 t30 0'/>\
+</g>\
+<g fill='%233DD9EB'>\
+<circle cx='150' cy='40' r='5'/><circle cx='170' cy='40' r='5'/><circle cx='190' cy='40' r='5'/>\
+<circle cx='40' cy='180' r='5'/><circle cx='60' cy='180' r='5'/>\
+<circle cx='280' cy='120' r='5'/>\
+</g>\
+<g stroke='%23FFD23F' stroke-width='3' fill='none' stroke-linecap='square'>\
+<path d='M240 30 l10 10 l-10 10 l10 10 l-10 10'/>\
+<path d='M100 230 l10 10 l-10 10 l10 10 l-10 10'/>\
+</g>\
+<g fill='%23B8A4FF'>\
+<path d='M255 175 l8 -14 l8 14 l-8 14 z'/>\
+<path d='M55 95 l8 -14 l8 14 l-8 14 z'/>\
+</g>\
+<g stroke='%237CE3A1' stroke-width='3' stroke-linecap='round'>\
+<path d='M180 150 v18 M171 159 h18'/>\
+<path d='M30 270 v18 M21 279 h18'/>\
+</g>\
+</svg>");
+  background-size: 320px 320px;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* Slow drift on the pattern */
+@keyframes drift {
+  from { background-position: 0 0; }
+  to   { background-position: 320px 320px; }
+}
+body::before { animation: drift 60s linear infinite; }
+
+/* Scanline whisper */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 3px,
+    rgba(0,0,0,0.06) 3px,
+    rgba(0,0,0,0.06) 4px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.4;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
+::selection { background: var(--yellow); color: var(--ink); }
+
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--pink); border: 3px solid var(--bg-2); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+
+/* Reveal */
+@keyframes pop {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.92) rotate(var(--rot, 0deg)); }
+  60%  { transform: translateY(-3px) scale(1.02) rotate(var(--rot, 0deg)); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(var(--rot, 0deg)); }
+}
+.pop-in { animation: pop 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(var(--rot, 0deg)); }
+  50%      { transform: rotate(calc(var(--rot, 0deg) + 1.5deg)); }
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
+@keyframes hue-spin {
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-muted);
-}
-
-/* Selection */
-::selection {
-  background: var(--color-accent);
-  color: var(--color-text);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Utility Classes */
-.animate-in {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-in-delay-1 {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-}
-
-.animate-in-delay-2 {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-.animate-in-delay-3 {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }

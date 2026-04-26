@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'JOLT — Notes',
-  description: 'Minimal editorial notes app',
+  title: 'JOLT // 88 — Sticker-sheet notes',
+  description: 'A loud little notebook. Memphis arcade aesthetic.',
 }
 
 export default function RootLayout({
