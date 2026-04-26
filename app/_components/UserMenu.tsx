@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { signOutAction } from '@/app/_actions/auth';
 
 type Session = { user?: { id: string; name?: string | null; email?: string | null; image?: string | null } } | null;
 
@@ -46,7 +47,7 @@ export default function UserMenu() {
           </div>
           <a className="menu-item" href="/api/export">⤓ Export all notes</a>
           <a className="menu-item" href="/settings">⚙ Settings</a>
-          <form action="/api/auth/signout" method="post" className="menu-form">
+          <form action={signOutAction} className="menu-form">
             <button type="submit" className="menu-item danger">↪ Sign out</button>
           </form>
         </div>
