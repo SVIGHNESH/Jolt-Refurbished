@@ -13,6 +13,10 @@ export default auth((req) => {
 
   // Anything else under the matcher requires auth.
   if (!isAuthed) {
+    // Anonymous landing on the home app → marketing welcome page.
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/welcome', req.url));
+    }
     const url = new URL('/login', req.url);
     url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);

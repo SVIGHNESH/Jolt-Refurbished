@@ -5,7 +5,7 @@ import { notes, tags, categories } from '@/lib/db/schema';
 import { eq, sql } from 'drizzle-orm';
 import DangerZone from './DangerZone';
 
-export const metadata = { title: 'JOLT // 88 — Settings' };
+export const metadata = { title: 'JOLT — Settings' };
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
@@ -73,7 +73,7 @@ export default async function SettingsPage() {
       <DangerZone hasNotes={(noteCount?.n ?? 0) > 0} />
 
       <footer className="foot">
-        <p>jolt // 88 — keep it loud</p>
+        <p>jolt — keep it loud</p>
       </footer>
     </main>
   );

@@ -20,7 +20,7 @@ function stable(id: string): { hue: Hue; rot: number; tilt: number } {
 }
 
 const TICKER_LINES = [
-  '★ JOLT // 88',
+  '★ JOLT',
   'NEW ENTRIES PINNED ABOVE',
   '✺ STAY LOUD',
   'PRESS / TO SEARCH',

@@ -51,7 +51,7 @@ export async function buildZip(notes: Note[], userEmail: string): Promise<Uint8A
   zip.file(
     'README.txt',
     [
-      'JOLT // 88 — Notes Export',
+      'JOLT — Notes Export',
       '==========================',
       '',
       `Exported: ${new Date().toISOString()}`,

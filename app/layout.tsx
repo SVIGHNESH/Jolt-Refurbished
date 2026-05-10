@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'JOLT // 88 — Sticker-sheet notes',
+  title: 'JOLT — Sticker-sheet notes',
   description: 'A loud little notebook. Memphis arcade aesthetic.',
 }
 

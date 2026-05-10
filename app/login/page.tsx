@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { limiters } from '@/lib/ratelimit';
 
-export const metadata = { title: 'JOLT // 88 — Sign in' };
+export const metadata = { title: 'JOLT — Sign in' };
 
 const ERROR_MESSAGES: Record<string, string> = {
   'rate-limited':         '⚠ too many tries — wait an hour and try again',
@@ -59,7 +59,7 @@ export default function LoginPage({
 
   return (
     <main className="login">
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <div className="card">
         <div className="card-tape" />
         <header className="hd">
